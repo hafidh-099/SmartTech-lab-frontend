@@ -60,7 +60,7 @@ export function Sidebar() {
   if (!user) return null;
 
   return (
-    <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card md:flex">
+    <aside className="hidden h-full w-64 shrink-0 flex-col overflow-y-auto border-r border-border bg-card md:flex">
       <div className="flex items-center gap-3 border-b border-border p-6">
         <Logo variant="minor" className="h-9 w-9" />
         <div>
