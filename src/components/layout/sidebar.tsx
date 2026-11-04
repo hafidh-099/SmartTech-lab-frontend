@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react'
+import type { ComponentType } from "react";
 import {
   AlertTriangle,
   Beaker,
@@ -11,52 +11,53 @@ import {
   Users,
   Boxes,
   Wallet,
-} from 'lucide-react'
-import { NavLink } from 'react-router-dom'
-import { cn } from '@/lib/utils'
-import { useAuthStore } from '@/stores/auth.store'
-import type { UserRole } from '@/types/user'
-import { Logo } from '@/components/shared/logo'
+} from "lucide-react";
+import { NavLink } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/auth.store";
+import type { UserRole } from "@/types/user";
+import { Logo } from "@/components/shared/logo";
 
 interface NavItem {
-  to: string
-  label: string
-  icon: ComponentType<{ className?: string }>
+  to: string;
+  label: string;
+  icon: ComponentType<{ className?: string }>;
 }
 
 const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   dean: [
-    { to: '/dean/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/dean/users', label: 'Users', icon: Users },
-    { to: '/dean/invitations', label: 'Invitations', icon: Mail },
-    { to: '/dean/school', label: 'School', icon: Building2 },
-    { to: '/dean/chemicals', label: 'Chemicals', icon: FlaskConical },
-    { to: '/dean/equipment', label: 'Equipment', icon: Beaker },
-    { to: '/dean/bookings', label: 'Bookings', icon: CalendarDays },
-    { to: '/dean/breakages', label: 'Breakages', icon: AlertTriangle },
-    { to: '/dean/breakages/summary', label: 'Financials', icon: Wallet },
+    { to: "/dean/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/dean/users", label: "Users", icon: Users },
+    { to: "/dean/invitations", label: "Invitations", icon: Mail },
+    { to: "/dean/school", label: "School", icon: Building2 },
+    { to: "/dean/chemicals", label: "Chemicals", icon: FlaskConical },
+    { to: "/dean/labs", label: "Labs", icon: FlaskConical },
+    { to: "/dean/equipment", label: "Equipment", icon: Beaker },
+    { to: "/dean/bookings", label: "Bookings", icon: CalendarDays },
+    { to: "/dean/breakages", label: "Breakages", icon: AlertTriangle },
+    { to: "/dean/breakages/summary", label: "Financials", icon: Wallet },
   ],
   technician: [
-    { to: '/technician/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/technician/chemicals', label: 'Chemicals', icon: FlaskConical },
-    { to: '/technician/equipment', label: 'Equipment', icon: Beaker },
-    { to: '/technician/bookings', label: 'Bookings', icon: CalendarDays },
-    { to: '/technician/breakages', label: 'Breakages', icon: AlertTriangle },
-    { to: '/technician/calculator', label: 'Calculator', icon: Calculator },
+    { to: "/technician/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/technician/chemicals", label: "Chemicals", icon: FlaskConical },
+    { to: "/technician/equipment", label: "Equipment", icon: Beaker },
+    { to: "/technician/bookings", label: "Bookings", icon: CalendarDays },
+    { to: "/technician/breakages", label: "Breakages", icon: AlertTriangle },
+    { to: "/technician/calculator", label: "Calculator", icon: Calculator },
   ],
   teacher: [
-    { to: '/teacher/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/teacher/bookings', label: 'My Bookings', icon: CalendarDays },
+    { to: "/teacher/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/teacher/bookings", label: "My Bookings", icon: CalendarDays },
   ],
   super_admin: [
-    { to: '/super/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/super/schools', label: 'Schools', icon: Boxes },
+    { to: "/super/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/super/schools", label: "Schools", icon: Boxes },
   ],
-}
+};
 
 export function Sidebar() {
-  const user = useAuthStore((state) => state.user)
-  if (!user) return null
+  const user = useAuthStore((state) => state.user);
+  if (!user) return null;
 
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-card md:flex">
@@ -77,10 +78,10 @@ export function Sidebar() {
             end
             className={({ isActive }) =>
               cn(
-                'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
                 isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-accent',
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent",
               )
             }
           >
@@ -93,5 +94,5 @@ export function Sidebar() {
         SmartTech Lab · v1.0
       </div>
     </aside>
-  )
+  );
 }

@@ -1,30 +1,23 @@
-import { useState } from 'react'
-import { Plus, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { useEffect, useState } from "react";
+import { Plus, X } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs'
-import { useChemicals } from '@/hooks/queries/use-chemicals'
-import {
-  useEquipment,
-  type Equipment,
-} from '@/hooks/queries/use-equipment'
-import type { BookingItem } from '@/hooks/queries/use-bookings'
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useChemicals } from "@/hooks/queries/use-chemicals";
+import { useEquipment, type Equipment } from "@/hooks/queries/use-equipment";
+import type { BookingItem } from "@/hooks/queries/use-bookings";
 
 interface ItemsSelectorProps {
-  items: BookingItem[]
-  onChange: (items: BookingItem[]) => void
+  items: BookingItem[];
+  onChange: (items: BookingItem[]) => void;
 }
 
 function EquipmentOption({ equipment }: { equipment: Equipment }) {
@@ -32,60 +25,80 @@ function EquipmentOption({ equipment }: { equipment: Equipment }) {
     <>
       {equipment.name} ({equipment.status})
     </>
-  )
+  );
 }
 
 export function ItemsSelector({ items, onChange }: ItemsSelectorProps) {
-  const [tab, setTab] = useState('chemicals')
-  const [chemicalId, setChemicalId] = useState('')
-  const [equipmentId, setEquipmentId] = useState('')
-  const [chemicalSearch, setChemicalSearch] = useState('')
-  const [equipmentSearch, setEquipmentSearch] = useState('')
-  const [quantity, setQuantity] = useState('')
-  const [message, setMessage] = useState('')
-  const chemicalsQuery = useChemicals({ page: 1, limit: 100 })
-  const equipmentQuery = useEquipment({ page: 1, limit: 100 })
-  const chemicals = chemicalsQuery.data?.data ?? []
+  const [tab, setTab] = useState("chemicals");
+  const [chemicalId, setChemicalId] = useState("");
+  const [equipmentId, setEquipmentId] = useState("");
+  const [chemicalSearch, setChemicalSearch] = useState("");
+  const [equipmentSearch, setEquipmentSearch] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [message, setMessage] = useState("");
+  const chemicalsQuery = useChemicals({
+    page: 1,
+    limit: 100,
+    includeInactive: false,
+  });
+  const equipmentQuery = useEquipment({ page: 1, limit: 100 });
+  const chemicals = chemicalsQuery.data?.data ?? [];
   const operationalEquipment =
     equipmentQuery.data?.data.filter(
       (item) =>
-        item.status === 'operational' &&
-        `${item.name} ${item.category ?? ''} ${item.serialNumber ?? ''}`
+        item.status === "operational" &&
+        `${item.name} ${item.category ?? ""} ${item.serialNumber ?? ""}`
           .toLowerCase()
           .includes(equipmentSearch.trim().toLowerCase()),
-    ) ?? []
+    ) ?? [];
   const filteredChemicals = chemicals.filter((chemical) =>
-    `${chemical.name} ${chemical.formula ?? ''}`
+    `${chemical.name} ${chemical.formula ?? ""}`
       .toLowerCase()
       .includes(chemicalSearch.trim().toLowerCase()),
-  )
-  const selectedChemical = chemicals.find((item) => item.id === chemicalId)
+  );
+  const selectedChemical = chemicals.find((item) => item.id === chemicalId);
   const selectedEquipment = operationalEquipment.find(
     (item) => item.id === equipmentId,
-  )
-  const numericQuantity = Number(quantity)
+  );
+  const numericQuantity = Number(quantity);
   const quantityExceedsStock =
     selectedChemical !== undefined &&
-    numericQuantity > Number(selectedChemical.currentQuantity)
+    numericQuantity > Number(selectedChemical.currentQuantity);
   const lowStock =
-    selectedChemical?.status === 'low' ||
-    selectedChemical?.status === 'critical'
+    selectedChemical?.status === "low" ||
+    selectedChemical?.status === "critical";
+
+  useEffect(() => {
+    if (chemicalsQuery.error) {
+      toast.error(`Could not load chemicals: ${chemicalsQuery.error.message}`);
+    }
+  }, [chemicalsQuery.error]);
+
+  useEffect(() => {
+    if (equipmentQuery.error) {
+      toast.error(`Could not load equipment: ${equipmentQuery.error.message}`);
+    }
+  }, [equipmentQuery.error]);
 
   function addChemical() {
-    if (!selectedChemical || !Number.isFinite(numericQuantity) || numericQuantity <= 0) {
-      setMessage('Select a chemical and enter a quantity greater than zero.')
-      return
+    if (
+      !selectedChemical ||
+      !Number.isFinite(numericQuantity) ||
+      numericQuantity <= 0
+    ) {
+      setMessage("Select a chemical and enter a quantity greater than zero.");
+      return;
     }
     if (items.length >= 20) {
-      setMessage('A booking can include at most 20 items.')
-      return
+      setMessage("A booking can include at most 20 items.");
+      return;
     }
     if (
       numericQuantity > 999_999_999.999 ||
       Number(numericQuantity.toFixed(3)) !== numericQuantity
     ) {
-      setMessage('Chemical quantity must have at most 3 decimal places.')
-      return
+      setMessage("Chemical quantity must have at most 3 decimal places.");
+      return;
     }
     onChange([
       ...items,
@@ -95,37 +108,43 @@ export function ItemsSelector({ items, onChange }: ItemsSelectorProps) {
         unit: selectedChemical.unit,
         chemical: selectedChemical,
       },
-    ])
-    setChemicalId('')
-    setQuantity('')
-    setMessage('')
+    ]);
+    setChemicalId("");
+    setQuantity("");
+    setMessage("");
   }
 
   function addEquipment() {
-    if (!selectedEquipment || !Number.isFinite(numericQuantity) || numericQuantity <= 0) {
-      setMessage('Select operational equipment and enter a quantity greater than zero.')
-      return
+    if (
+      !selectedEquipment ||
+      !Number.isFinite(numericQuantity) ||
+      numericQuantity <= 0
+    ) {
+      setMessage(
+        "Select operational equipment and enter a quantity greater than zero.",
+      );
+      return;
     }
     if (items.length >= 20) {
-      setMessage('A booking can include at most 20 items.')
-      return
+      setMessage("A booking can include at most 20 items.");
+      return;
     }
     if (!Number.isInteger(numericQuantity)) {
-      setMessage('Equipment quantity must be a whole number.')
-      return
+      setMessage("Equipment quantity must be a whole number.");
+      return;
     }
     onChange([
       ...items,
       {
         equipmentId: selectedEquipment.id,
         quantity: numericQuantity,
-        unit: 'pcs',
+        unit: "pcs",
         equipment: selectedEquipment,
       },
-    ])
-    setEquipmentId('')
-    setQuantity('')
-    setMessage('')
+    ]);
+    setEquipmentId("");
+    setQuantity("");
+    setMessage("");
   }
 
   return (
@@ -136,9 +155,9 @@ export function ItemsSelector({ items, onChange }: ItemsSelectorProps) {
       <Tabs
         value={tab}
         onValueChange={(value) => {
-          setTab(value)
-          setMessage('')
-          setQuantity('')
+          setTab(value);
+          setMessage("");
+          setQuantity("");
         }}
       >
         <TabsList className="grid w-full grid-cols-2 sm:w-72">
@@ -156,7 +175,10 @@ export function ItemsSelector({ items, onChange }: ItemsSelectorProps) {
           ) : (
             <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_10rem_auto] sm:items-end">
               <div className="space-y-2">
-                <label htmlFor="booking-chemical" className="text-sm font-medium">
+                <label
+                  htmlFor="booking-chemical"
+                  className="text-sm font-medium"
+                >
                   Chemical
                 </label>
                 <Input
@@ -176,17 +198,23 @@ export function ItemsSelector({ items, onChange }: ItemsSelectorProps) {
                     {filteredChemicals.map((chemical) => (
                       <SelectItem key={chemical.id} value={chemical.id}>
                         {chemical.name}
-                        {chemical.formula ? ` (${chemical.formula})` : ''} ·{' '}
-                        {Number(chemical.currentQuantity).toLocaleString()}{' '}
-                        {chemical.unit}
+                        {chemical.formula
+                          ? ` (${chemical.formula})`
+                          : ""} -{" "}
+                        {Number(chemical.currentQuantity).toLocaleString()}
+                        {chemical.unit} available
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <label htmlFor="booking-chemical-quantity" className="text-sm font-medium">
-                  Quantity {selectedChemical ? `(${selectedChemical.unit})` : ''}
+                <label
+                  htmlFor="booking-chemical-quantity"
+                  className="text-sm font-medium"
+                >
+                  Quantity{" "}
+                  {selectedChemical ? `(${selectedChemical.unit})` : ""}
                 </label>
                 <Input
                   id="booking-chemical-quantity"
@@ -227,7 +255,10 @@ export function ItemsSelector({ items, onChange }: ItemsSelectorProps) {
           ) : (
             <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_10rem_auto] sm:items-end">
               <div className="space-y-2">
-                <label htmlFor="booking-equipment" className="text-sm font-medium">
+                <label
+                  htmlFor="booking-equipment"
+                  className="text-sm font-medium"
+                >
                   Operational equipment
                 </label>
                 <Input
@@ -258,7 +289,10 @@ export function ItemsSelector({ items, onChange }: ItemsSelectorProps) {
                 )}
               </div>
               <div className="space-y-2">
-                <label htmlFor="booking-equipment-quantity" className="text-sm font-medium">
+                <label
+                  htmlFor="booking-equipment-quantity"
+                  className="text-sm font-medium"
+                >
                   Quantity (pcs)
                 </label>
                 <Input
@@ -287,11 +321,11 @@ export function ItemsSelector({ items, onChange }: ItemsSelectorProps) {
         <ul className="space-y-2">
           {items.map((item, index) => {
             const name =
-              item.chemical?.name ?? item.equipment?.name ?? 'Unknown item'
+              item.chemical?.name ?? item.equipment?.name ?? "Unknown item";
             const stockWarning =
               item.chemical &&
-              Number(item.quantity) > Number(item.chemical.currentQuantity)
-            const chemicalStatus = item.chemical?.status
+              Number(item.quantity) > Number(item.chemical.currentQuantity);
+            const chemicalStatus = item.chemical?.status;
             return (
               <li
                 key={`${item.chemicalId ?? item.equipmentId}-${index}`}
@@ -302,14 +336,14 @@ export function ItemsSelector({ items, onChange }: ItemsSelectorProps) {
                   <p
                     className={`text-xs ${
                       stockWarning
-                        ? 'text-amber-700 dark:text-amber-300'
-                        : 'text-muted-foreground'
+                        ? "text-amber-700 dark:text-amber-300"
+                        : "text-muted-foreground"
                     }`}
                   >
                     {Number(item.quantity).toLocaleString()} {item.unit}
-                    {stockWarning ? ' · exceeds current stock' : ''}
+                    {stockWarning ? " · exceeds current stock" : ""}
                   </p>
-                  {chemicalStatus === 'low' || chemicalStatus === 'critical' ? (
+                  {chemicalStatus === "low" || chemicalStatus === "critical" ? (
                     <p className="text-xs text-amber-700 dark:text-amber-300">
                       Chemical stock is {chemicalStatus}.
                     </p>
@@ -321,16 +355,18 @@ export function ItemsSelector({ items, onChange }: ItemsSelectorProps) {
                   size="icon"
                   aria-label={`Remove ${name}`}
                   onClick={() =>
-                    onChange(items.filter((_, itemIndex) => itemIndex !== index))
+                    onChange(
+                      items.filter((_, itemIndex) => itemIndex !== index),
+                    )
                   }
                 >
                   <X className="h-4 w-4" />
                 </Button>
               </li>
-            )
+            );
           })}
         </ul>
       )}
     </div>
-  )
+  );
 }
