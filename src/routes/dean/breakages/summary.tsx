@@ -137,29 +137,29 @@ export default function BreakageSummaryPage() {
       </form>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Total penalties</CardTitle></CardHeader>
-          <CardContent className="text-xl font-semibold">{formatTzs(summary.totalPenalties)}</CardContent>
+        <Card className="border-border bg-card shadow-sm">
+          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-foreground">Total penalties</CardTitle></CardHeader>
+          <CardContent className="text-xl font-semibold text-foreground">{formatTzs(summary.totalPenalties)}</CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Total paid</CardTitle></CardHeader>
+        <Card className="border-border bg-card shadow-sm">
+          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-foreground">Total paid</CardTitle></CardHeader>
           <CardContent className="text-xl font-semibold text-green-700 dark:text-green-400">{formatTzs(summary.totalPaid)}</CardContent>
         </Card>
-        <Card className={summary.totalUnpaid > 0 ? 'border-destructive/50 bg-destructive/5' : undefined}>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Total unpaid</CardTitle></CardHeader>
-          <CardContent className={`text-xl font-semibold ${summary.totalUnpaid > 0 ? 'text-destructive' : ''}`}>
+        <Card className={`border-border bg-card shadow-sm ${summary.totalUnpaid > 0 ? 'border-destructive/50' : ''}`}>
+          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-foreground">Total unpaid</CardTitle></CardHeader>
+          <CardContent className={`text-xl font-semibold ${summary.totalUnpaid > 0 ? 'text-red-600 dark:text-red-400' : 'text-foreground'}`}>
             {formatTzs(summary.totalUnpaid)}
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Total waived</CardTitle></CardHeader>
-          <CardContent className="text-xl font-semibold">{formatTzs(summary.totalWaived)}</CardContent>
+        <Card className="border-border bg-card shadow-sm">
+          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-foreground">Total waived</CardTitle></CardHeader>
+          <CardContent className="text-xl font-semibold text-foreground">{formatTzs(summary.totalWaived)}</CardContent>
         </Card>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader><CardTitle>Financial breakdown</CardTitle></CardHeader>
+        <Card className="border-border bg-card shadow-sm">
+          <CardHeader><CardTitle className="text-foreground">Financial breakdown</CardTitle></CardHeader>
           <CardContent>
             {statusChart.length === 0 ? (
               <EmptyState title="No financial data" description="No penalties are recorded for this date range." />
@@ -173,21 +173,29 @@ export default function BreakageSummaryPage() {
                     innerRadius={62}
                     outerRadius={100}
                     paddingAngle={3}
-                    label={({ name }) => name}
+                    label={{ fill: 'hsl(var(--muted-foreground))' }}
                   >
                     {statusChart.map((entry) => (
                       <Cell key={entry.status} fill={STATUS_COLORS[entry.status]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => formatTzs(Number(value))} />
-                  <Legend />
+                  <Tooltip
+                    formatter={(value) => formatTzs(Number(value))}
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
+                      borderColor: 'hsl(var(--border))',
+                      color: 'hsl(var(--foreground))',
+                    }}
+                    labelStyle={{ color: 'hsl(var(--foreground))' }}
+                  />
+                  <Legend wrapperStyle={{ color: 'hsl(var(--muted-foreground))' }} />
                 </PieChart>
               </ResponsiveContainer>
             )}
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader><CardTitle>Top students by unpaid balance</CardTitle></CardHeader>
+        <Card className="border-border bg-card shadow-sm">
+          <CardHeader><CardTitle className="text-foreground">Top students by unpaid balance</CardTitle></CardHeader>
           <CardContent>
             {summary.topStudents.length === 0 ? (
               <EmptyState title="No outstanding balances" description="There are no unpaid penalties in this date range." />
@@ -198,15 +206,27 @@ export default function BreakageSummaryPage() {
                   layout="vertical"
                   margin={{ left: 8, right: 16 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                  <XAxis type="number" tickFormatter={(value: number) => value.toLocaleString()} />
+                  <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" horizontal={false} />
+                  <XAxis
+                    type="number"
+                    tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                    tickFormatter={(value: number) => value.toLocaleString()}
+                  />
                   <YAxis
                     type="category"
                     dataKey="studentName"
                     width={110}
-                    tick={{ fontSize: 11 }}
+                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
                   />
-                  <Tooltip formatter={(value) => formatTzs(Number(value))} />
+                  <Tooltip
+                    formatter={(value) => formatTzs(Number(value))}
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
+                      borderColor: 'hsl(var(--border))',
+                      color: 'hsl(var(--foreground))',
+                    }}
+                    labelStyle={{ color: 'hsl(var(--foreground))' }}
+                  />
                   <Bar dataKey="totalOwed" name="Owed (TZS)" fill="#ef4444" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -215,8 +235,8 @@ export default function BreakageSummaryPage() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader><CardTitle>Top students</CardTitle></CardHeader>
+      <Card className="border-border bg-card shadow-sm">
+        <CardHeader><CardTitle className="text-foreground">Top students</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="overflow-x-auto">
             <Table>
@@ -256,8 +276,8 @@ export default function BreakageSummaryPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader><CardTitle>Recent breakages</CardTitle></CardHeader>
+      <Card className="border-border bg-card shadow-sm">
+        <CardHeader><CardTitle className="text-foreground">Recent breakages</CardTitle></CardHeader>
         <CardContent>
           {recentQuery.isLoading ? (
             <Skeleton className="h-28" />
